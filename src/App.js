@@ -51,7 +51,6 @@ const App = () => {
 
   const addTask = (text) => {
     const newTask = { id: Date.now(), text: text, completed: false };
-    console.log("newTask", newTask);
     // create a new array by combining the elelemtns of an existing array (tasks)
     // with a new element (newTask)
     setTasks([...tasks, newTask]);
