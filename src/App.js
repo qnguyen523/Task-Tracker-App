@@ -45,7 +45,7 @@ const App = () => {
   // Fetch tasks from Firestore
   const fetchTasks = async () => {
     const snapshot = await getDocs(tasksCollection);
-    const tasksData = snapshot.docs.map((doc) => ({ document_id: doc.id, ...doc.data() }));
+    const tasksData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     setTasks(tasksData);
   };
@@ -56,22 +56,27 @@ const App = () => {
 
   // Add Task to Firestore
   const addTask = async(text) => {
-    const newTask = { id: Timestamp.now(), text: text, completed: false };
+    const newTask = {
+      text: text,
+      completed: false,
+      created_at: Timestamp.now(),
+      updated_at: Timestamp.now()
+    };
     await addDoc(tasksCollection, newTask);
     fetchTasks();
   };
 
   // Toggle Task
-  const toggleTask = async(document_id, completed) => {
+  const toggleTask = async(id, completed) => {
     // Update the task in Firestore
-    const taskRef = doc(db, "tasks", document_id);
+    const taskRef = doc(db, "tasks", id);
     await updateDoc(taskRef, { completed: !completed });
     fetchTasks();
   };
 
   // Delete Task
-  const deleteTask = async (document_id) => {
-    const taskRef = doc(db, "tasks", document_id);
+  const deleteTask = async (id) => {
+    const taskRef = doc(db, "tasks", id);
     await deleteDoc(taskRef);
     fetchTasks();
   };
