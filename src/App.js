@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { db } from "./firebase";
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, Timestamp } from "firebase/firestore";
 import TaskInput from "./components/TaskInput";
 import TaskList from "./components/TaskList";
 import FilterButtons from "./components/FilterButtons";
@@ -39,35 +41,39 @@ import FilterButtons from "./components/FilterButtons";
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("all");
+  const tasksCollection = collection(db, "tasks");
+  // Fetch tasks from Firestore
+  const fetchTasks = async () => {
+    const snapshot = await getDocs(tasksCollection);
+    const tasksData = snapshot.docs.map((doc) => ({ document_id: doc.id, ...doc.data() }));
+
+    setTasks(tasksData);
+  };
 
   useEffect(() => {
-    const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    setTasks(savedTasks);
+    fetchTasks();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
-
-  const addTask = (text) => {
-    const newTask = { id: Date.now(), text: text, completed: false };
-    // create a new array by combining the elelemtns of an existing array (tasks)
-    // with a new element (newTask)
-    setTasks([...tasks, newTask]);
+  // Add Task to Firestore
+  const addTask = async(text) => {
+    const newTask = { id: Timestamp.now(), text: text, completed: false };
+    await addDoc(tasksCollection, newTask);
+    fetchTasks();
   };
 
-  const toggleTask = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        // create a new object by copying the properties of an existing object (task)
-        // and then mofidying one of its properties (completed)
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+  // Toggle Task
+  const toggleTask = async(document_id, completed) => {
+    // Update the task in Firestore
+    const taskRef = doc(db, "tasks", document_id);
+    await updateDoc(taskRef, { completed: !completed });
+    fetchTasks();
   };
 
-  const deleteTask = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+  // Delete Task
+  const deleteTask = async (document_id) => {
+    const taskRef = doc(db, "tasks", document_id);
+    await deleteDoc(taskRef);
+    fetchTasks();
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -75,8 +81,12 @@ const App = () => {
     if (filter === "pending") return !task.completed;
     return true;
   });
-
   return (
+    // return a JSX element
+    // className is a JSX attribute that sets the class attribute of the element
+    // tailwindcss classes are used to style the element
+    // the className attribute is used to apply multiple classes to the element
+    // the classes are separated by a space
     <div className="min-h-screen bg-gray-500 text-white flex flex-col items-center p-4">
       <h1 className="text-3xl font-bold mb-4">Task Tracker</h1>
       <TaskInput addTask={addTask} />
