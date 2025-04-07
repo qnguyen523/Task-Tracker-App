@@ -14,13 +14,14 @@ import React from "react";
  */
 
 const TaskItem = ({ task, toggleTask, deleteTask }) => {
+  console.log('task', task)
   return (
     <li className="flex justify-between items-center bg-gray-800 p-2 mb-2 rounded">
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
           checked={task.completed}
-          onChange={() => toggleTask(task.document_id, task.completed)}
+          onChange={() => toggleTask(task.id, task.completed)}
           className="w-4 h-4"
         />
         <span className={task.completed ? "line-through text-gray-400" : ""}>
@@ -28,7 +29,7 @@ const TaskItem = ({ task, toggleTask, deleteTask }) => {
         </span>
       </div>
       <button
-        onClick={() => deleteTask(task.document_id)}
+        onClick={() => deleteTask(task.id)}
         className="bg-red-500 px-2 py-1 rounded"
       >
         Delete
