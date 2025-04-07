@@ -12,19 +12,25 @@ import React from "react";
  * @param {Function} props.deleteTask - Function to delete the task.
  * @returns {JSX.Element} A list item representing a task with a checkbox and delete button.
  */
+
 const TaskItem = ({ task, toggleTask, deleteTask }) => {
   return (
     <li className="flex justify-between items-center bg-gray-800 p-2 mb-2 rounded">
-      <label className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <input
           type="checkbox"
           checked={task.completed}
           onChange={() => toggleTask(task.document_id, task.completed)}
           className="w-4 h-4"
         />
-        <span className={task.completed ? "line-through text-gray-400" : ""}>{task.text}</span>
-      </label>
-      <button onClick={() => deleteTask(task.document_id)} className="bg-red-500 px-2 py-1 rounded">
+        <span className={task.completed ? "line-through text-gray-400" : ""}>
+          {task.text}
+        </span>
+      </div>
+      <button
+        onClick={() => deleteTask(task.document_id)}
+        className="bg-red-500 px-2 py-1 rounded"
+      >
         Delete
       </button>
     </li>
