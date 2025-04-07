@@ -19,12 +19,12 @@ const TaskItem = ({ task, toggleTask, deleteTask }) => {
         <input
           type="checkbox"
           checked={task.completed}
-          onChange={() => toggleTask(task.id)}
+          onChange={() => toggleTask(task.document_id, task.completed)}
           className="w-4 h-4"
         />
         <span className={task.completed ? "line-through text-gray-400" : ""}>{task.text}</span>
       </label>
-      <button onClick={() => deleteTask(task.id)} className="bg-red-500 px-2 py-1 rounded">
+      <button onClick={() => deleteTask(task.document_id)} className="bg-red-500 px-2 py-1 rounded">
         Delete
       </button>
     </li>

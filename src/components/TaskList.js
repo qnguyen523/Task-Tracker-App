@@ -17,7 +17,7 @@ const TaskList = ({ tasks, toggleTask, deleteTask }) => {
         <p className="text-gray-400">No tasks found.</p>
       ) : (
         tasks.map((task) => (
-          <TaskItem key={task.id} task={task} toggleTask={toggleTask} deleteTask={deleteTask} />
+          <TaskItem key={task.document_id} task={task} toggleTask={toggleTask} deleteTask={deleteTask} />
         ))
       )}
     </ul>
