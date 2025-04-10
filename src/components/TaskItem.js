@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 /**
  * TaskItem component represents a single task item in a task list.
@@ -14,7 +15,6 @@ import React from "react";
  */
 
 const TaskItem = ({ task, toggleTask, deleteTask }) => {
-  console.log('task', task)
   return (
     <li className="flex justify-between items-center bg-gray-800 p-2 mb-2 rounded">
       <div className="flex items-center gap-2">
@@ -24,9 +24,11 @@ const TaskItem = ({ task, toggleTask, deleteTask }) => {
           onChange={() => toggleTask(task.id, task.completed)}
           className="w-4 h-4"
         />
-        <span className={task.completed ? "line-through text-gray-400" : ""}>
-          {task.text}
-        </span>
+        <Link to={`/task/${task.id}`} className="hover:underline">
+          <span className={task.completed ? "line-through text-gray-400" : ""}>
+            {task.text}
+          </span>
+        </Link>
       </div>
       <button
         onClick={() => deleteTask(task.id)}
