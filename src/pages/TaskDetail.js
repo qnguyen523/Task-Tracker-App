@@ -6,8 +6,10 @@ import { useEffect, useState } from "react";
 const TaskDetail = () => {
   const { id } = useParams();
   const [task, setTask] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingDescription, setEditingDescription] = useState(false);
   const [description, setDescription] = useState("");
+  const [title, setTitle] = useState("");
+  const [editingTitle, setEditingTitle] = useState(false);
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -17,6 +19,7 @@ const TaskDetail = () => {
         const taskData = { id: docSnap.id, ...docSnap.data() };
         setTask(taskData);
         setDescription(taskData.description || "");
+        setTitle(taskData.text || "");
       } else {
         console.log("No such document!");
       }
@@ -25,7 +28,7 @@ const TaskDetail = () => {
   }, [id]);
 
   const handleEdit = () => {
-    setIsEditing(true);
+    setEditingDescription(true);
   };
 
   const handleSave = async () => {
@@ -38,7 +41,7 @@ const TaskDetail = () => {
 
       // Update local state
       setTask({...task, description: description});
-      setIsEditing(false);
+      setEditingDescription(false);
     } catch (error) {
       console.error("Error updating task description:", error);
     }
@@ -46,7 +49,32 @@ const TaskDetail = () => {
 
   const handleCancel = () => {
     setDescription(task.description || "");
-    setIsEditing(false);
+    setEditingDescription(false);
+  };
+
+  const handleTitleEdit = () => {
+    setEditingTitle(true);
+  };
+
+  const handleTitleSave = async () => {
+    try {
+      const taskRef = doc(db, "tasks", id);
+      await updateDoc(taskRef, { 
+        text: title,
+        updated_at: Timestamp.now()
+      });
+      
+      // Update local state
+      setTask({...task, text: title});
+      setEditingTitle(false);
+    } catch (error) {
+      console.error("Error updating task title:", error);
+    }
+  };
+
+  const handleTitleCancel = () => {
+    setTitle(task.text || "");
+    setEditingTitle(false);
   };
 
   if (!task) {
@@ -56,13 +84,54 @@ const TaskDetail = () => {
   return (
     <div className="min-h-screen bg-gray-500 text-white p-4">
       <Link to="/" className="text-blue-400 hover:underline">&larr; Back</Link>
-      <h1 className="text-2xl font-bold mt-4">{task.text}</h1>
+
+      <div className="mt-4">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xl font-semibold">Title</h2>
+          {!editingTitle && (
+            <button
+              onClick={handleTitleEdit}
+              className="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded"
+            >
+              Edit
+            </button>
+          )}
+        </div>
+
+        {editingTitle ? (
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-2 text-black rounded"
+              placeholder="Enter task title..."
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleTitleSave}
+                className="bg-green-500 hover:bg-green-600 px-3 py-1 rounded"
+              >
+                Save
+              </button>
+              <button
+                onClick={handleTitleCancel}
+                className="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <h1 className="text-2xl font-bold p-3 bg-gray-700 rounded">{task.text}</h1>
+        )}
+      </div>
       
       <div className="mt-4">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-xl font-semibold">Description</h2>
-          {!isEditing && (
-            <button 
+          {!editingDescription && (
+            <button
               onClick={handleEdit}
               className="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded"
             >
@@ -71,7 +140,7 @@ const TaskDetail = () => {
           )}
         </div>
         
-        {isEditing ? (
+        {editingDescription ? (
           <div className="space-y-2">
             <textarea
               value={description}
@@ -80,13 +149,13 @@ const TaskDetail = () => {
               placeholder="Enter task description..."
             />
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={handleSave}
                 className="bg-green-500 hover:bg-green-600 px-3 py-1 rounded"
               >
                 Save
               </button>
-              <button 
+              <button
                 onClick={handleCancel}
                 className="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded"
               >
